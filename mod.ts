@@ -6,7 +6,6 @@ import {
   SecureCookieMap,
 } from "https://deno.land/std@0.190.0/http/cookie_map.ts";
 import { toHashString } from "https://deno.land/std@0.190.0/crypto/to_hash_string.ts";
-import { ConnInfo } from "https://deno.land/std@0.190.0/http/server.ts";
 
 export interface KvSessionOptions {
   /** Cookie name that does not disclose unnecessary details about its purpose. */
@@ -46,13 +45,6 @@ interface KvSessionInit {
   cookieName: string;
   cookies: SecureCookieMap;
 }
-
-export type Context = {
-  connInfo: ConnInfo;
-  session: KvSession
-}
-
-export type KvSessionHandler = (request: Request, context: Context) => Response | Promise<Response>;
 
 class KvSession {
   #kv: Deno.Kv;
