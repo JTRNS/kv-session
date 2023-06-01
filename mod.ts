@@ -8,18 +8,29 @@ import {
 import { toHashString } from "https://deno.land/std@0.190.0/crypto/to_hash_string.ts";
 
 export interface KvSessionOptions {
-  /** Cookie name that does not disclose unnecessary details about its purpose. */
+  /** Cookie name that does not disclose unnecessary details about its purpose
+   * and the technology stack behind it.
+   * @default "sid"
+   */
   cookieName?: string;
+
+  /** Persists database at this path. */
   kvPath?: string | undefined;
+
+  /** The key space for storing session data.
+   * @default "sessions"
+   */
   keySpace?: Deno.KvKeyPart;
 }
 
+/** Default options for {@linkcode createSession}. */
 const DEFAULT_OPTIONS = {
   cookieName: "sid",
   keySpace: "sessions",
   kvPath: undefined,
 };
 
+/** Creates a new Session instance */
 export async function createSession(
   request: Request,
   signatureKeys: string[],
