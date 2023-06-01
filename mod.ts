@@ -9,24 +9,23 @@ import { toHashString } from "https://deno.land/std@0.190.0/crypto/to_hash_strin
 
 export interface KvSessionOptions {
   /** Cookie name that does not disclose unnecessary details about its purpose. */
-  cookieName: string;
-  kvPath?: string;
-  keySpace: Deno.KvKeyPart;
-  signatureKeys: string[];
+  cookieName?: string;
+  kvPath?: string | undefined;
+  keySpace?: Deno.KvKeyPart;
 }
 
-const DEFAULT_OPTIONS: KvSessionOptions = {
+const DEFAULT_OPTIONS = {
   cookieName: "sid",
   keySpace: "sessions",
   kvPath: undefined,
-  signatureKeys: ["fb71680cce6b93787ab"]
 };
 
 export async function createSession(
   request: Request,
+  signatureKeys: string[],
   options: Partial<KvSessionOptions> = {},
-) {
-  const { cookieName, keySpace, kvPath, signatureKeys } = Object.assign(
+): Promise<KvSession> {
+  const { cookieName, keySpace, kvPath } = Object.assign(
     options,
     DEFAULT_OPTIONS,
   );
