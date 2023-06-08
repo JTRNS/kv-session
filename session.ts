@@ -10,15 +10,17 @@ import { toHashString } from "https://deno.land/std@0.190.0/crypto/to_hash_strin
 export interface KvSessionOptions {
   /** Cookie name that does not disclose unnecessary details about its purpose
    * and the technology stack behind it.
-   * @default "sid"
+   * @default {"sid"}
    */
   cookieName?: string;
 
-  /** Persists database at this path. */
+  /** Persists database underlying KV store at this path.
+   * @default {undefined}
+   */
   kvPath?: string | undefined;
 
   /** The key space for storing session data.
-   * @default "sessions"
+   * @default {"sessions"}
    */
   keySpace?: Deno.KvKeyPart;
 }
@@ -70,14 +72,15 @@ export class KvSession {
    *
    * ```ts
    * import { KeyStack } from "https://deno.land/std@$STD_VERSION/crypto/keystack.ts";
-   * import { serve, SecureCookieMap } from from "https://deno.land/std@$STD_VERSION/http/mod.ts";
+   * import {
+   *   SecureCookieMap,
+   *   serve,
+   * } from "https://deno.land/std@$STD_VERSION/http/mod.ts";
    * import { Session } from "https://deno.land/x/kv_session/mod.ts";
-   *
    * const sessionKeyStack = new KeyStack(["secret_key_123"]);
    * const kv = await Deno.openKv();
    * const sessionKey = "sessions";
    * const cookieName = "session_id";
-   *
    * serve(async (request) => {
    *   const cookies = new SecureCookieMap(request, { keys: sessionKeyStack });
    *   const id = await cookies.get("session_id") ?? KvSession.generateId();
@@ -120,8 +123,28 @@ export class KvSession {
     for await (const res of iterator) values.push(res);
     return values;
   }
-  /** Merges various sources of headers with the sessions set-cookie headers. */
-  persist(...sources: (Headered | HeadersInit | Mergeable)[]) {
+  /** Persist the session by merging the reference to the session data,
+   * the session ID, as a set-cookie header into the response.
+   *
+   * ```ts
+   * return new Response("Hello World", {
+   *   headers: session.persist(),
+   * });
+   * ```
+   *
+   * Combined with other headers:
+   *
+   * ```ts
+   * const body = JSON.stringify({ name: "John Doe" });
+   * return new Response(body, {
+   *   headers: session.persist({
+   *    "Content-Type": "application/json",
+   *    "Cache-Control": "no-cache",
+   *   })
+   * });
+   * ```
+   */
+  persist(...sources: (Headered | HeadersInit | Mergeable)[]): Headers {
     return mergeHeaders(...sources, this.#cookies);
   }
   send(response: Response) {
