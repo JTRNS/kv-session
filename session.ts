@@ -34,10 +34,10 @@ const DEFAULT_OPTIONS = {
 export async function createSession(
   request: Request,
   signatureKeys: string[],
-  options: Partial<KvSessionOptions> = {},
+  options?: Partial<KvSessionOptions>,
 ): Promise<KvSession> {
   const { cookieName, keySpace, kvPath } = Object.assign(
-    options,
+    options ?? {},
     DEFAULT_OPTIONS,
   );
   const sessionKeyStack = new KeyStack(signatureKeys);
