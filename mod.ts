@@ -1,6 +1,5 @@
-/**
- * Provides basic, but secure HTTP Session functionality by combining Deno's SecureCookieMap
- * with Deno's built-in KV Store.
+/** Provides basic, but secure HTTP Session functionality by combining
+ * Deno's SecureCookieMap with Deno's built-in KV Store.
  *
  * ```ts
  * import { serve } from "https://deno.land/std@$STD_VERSION/http/server.ts";

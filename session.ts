@@ -30,7 +30,7 @@ const DEFAULT_OPTIONS = {
   kvPath: undefined,
 };
 
-/** Creates a new Session instance */
+/** Creates a new {@linkcode KvSession} instance */
 export async function createSession(
   request: Request,
   signatureKeys: string[],
@@ -48,6 +48,7 @@ export async function createSession(
   return new KvSession({ kv, id, keySpace, cookies, cookieName });
 }
 
+/** Constructor arguments for {@linkcode KvSession} */
 export interface KvSessionInit {
   kv: Deno.Kv;
   id: string;
@@ -56,6 +57,7 @@ export interface KvSessionInit {
   cookies: SecureCookieMap;
 }
 
+/** Used to construct a KvSession */
 export class KvSession {
   #kv: Deno.Kv;
   #id: string;
@@ -63,6 +65,29 @@ export class KvSession {
   #cookies: SecureCookieMap;
   #cookieName: string;
 
+  /**
+   * Constructs a new KvSession instance.
+   *
+   * ```ts
+   * import { KeyStack } from "https://deno.land/std@$STD_VERSION/crypto/keystack.ts";
+   * import { serve, SecureCookieMap } from from "https://deno.land/std@$STD_VERSION/http/mod.ts";
+   * import { Session } from "https://deno.land/x/kv_session/mod.ts";
+   *
+   * const sessionKeyStack = new KeyStack(["secret_key_123"]);
+   * const kv = await Deno.openKv();
+   * const sessionKey = "sessions";
+   * const cookieName = "session_id";
+   *
+   * serve(async (request) => {
+   *   const cookies = new SecureCookieMap(request, { keys: sessionKeyStack });
+   *   const id = await cookies.get("session_id") ?? KvSession.generateId();
+   *   await cookies.set(cookieName, id, { path: "/" });
+   *   const session = new Session({ kv, id, sessionKey, cookies, cookieName });
+   * });
+   * ```
+   *
+   *  @param {KvSessionInit} init Arguments for constructing a new {@linkcode KvSession}.
+   */
   constructor(
     init: KvSessionInit,
   ) {
@@ -136,6 +161,7 @@ export class KvSession {
     });
   }
 
+  /** Generates a random 128 bit session ID. */
   static generateId() {
     return toHashString(crypto.getRandomValues(new Uint8Array(16)));
   }
